@@ -1,14 +1,15 @@
 from django.core.mail import send_mail
 import datetime
+from django.conf import settings
 
 
 HOST_URL = "https://api.nativeservice.pl"
 SENDER = "nativeservice@nativeservice.pl"
 
 
-def file_list_creating(file_data):
+def files_urls_list_creating(file_data):
     files_list = []
-    [files_list.append(f"{HOST_URL}/{f}\n".replace(' ', '_')) for f in file_data]
+    [files_list.append(f"{HOST_URL}{settings.MEDIA_URL}{f}\n".replace(" ", "_")) for f in file_data]
     return files_list
 
 
@@ -25,7 +26,7 @@ def performer_queue_alert_email(data, files="No files."):
         f"Telefon: {data['phone']}\n"
         f"Data najpóźniejszej realizacji: {data['date_to_be_done']}\n"
         f"Opis: {data['description']}\n"
-        f"{''.join(file_list_creating(files))}"
+        f"{''.join(files_urls_list_creating(files))}"
         f"\n\nTen email został'wygenerowany automatycznie. Prosimy o nie odpowiadanie na wiadomość.",
         SENDER,
         recipients_list,
@@ -50,7 +51,7 @@ def customer_queue_alert_email(data, files="No files."):
         f"Telefon: {data['phone']}\n"
         f"Data najpóźniejszej realizacji {data['date_to_be_done']}\n"
         f"Opis: {data['description']}\n"
-        f"{''.join(file_list_creating(files))}"
+        f"{''.join(files_urls_list_creating(files))}"
         f"\n\nTen email został'wygenerowany automatycznie. Prosimy o nie odpowiadanie na wiadomość.",
         SENDER,
         recipients_list,
