@@ -15,3 +15,8 @@ class NativePost(models.Model):
 
     def __str__(self):
         return self.title
+
+class FinalPricing(models.Model):
+    time_to_get_ready = models.DateField()
+    price = models.CharField(max_length=10)
+    comments = models.CharField(max_length=500)

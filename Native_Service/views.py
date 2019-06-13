@@ -1,12 +1,14 @@
 from django.shortcuts import render
 from django.views.generic import FormView, TemplateView
 from .models import NativePost
-from .forms import NativePostForm
+from .forms import NativePostForm, FinalPricing
 from Native_Service.lib.native_service import ProgressStages, secret_key_generator
 from django.core.files.storage import FileSystemStorage
 from django.core.files.base import ContentFile
 from django.conf import settings
 import datetime
+from django.urls import reverse
+
 
 
 """
@@ -20,7 +22,7 @@ def dispatch(self, request, *args, **kwargs):
 class Pricing(FormView):
     """ Pricing view for not logged in users. """
 
-    template_name = "index.html"
+    template_name = "pricing.html"
     secret_key = None
     form_class = NativePostForm
     success_url = "/upload"
@@ -70,5 +72,19 @@ class FormSubmit(Pricing):
             return render(self.request, template_name, args)
 
 
-class EmailComfirmation(TemplateView):
-    template_name = "email_comfirmation.html"
+class FinalPricing(FormView):
+    template_name = "final_pricing.html"
+    form_class = FinalPricing
+    success_url = "final_pricing_submit"
+
+    def get(self, request, *args, **kwargs):
+        db = NativePost
+        all = db.objects.filter(secret_key='i00ntk2xgj41')
+        self.data_dict = {}
+        for i in all.values():
+            self.data_dict['secret_key'] = i['secret_key']
+
+            print(i)
+        print(self.data_dict)
+
+        return self.render_to_response(self.get_context_data())

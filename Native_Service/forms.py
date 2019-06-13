@@ -1,5 +1,5 @@
 from django import forms
-from .models import NativePost
+from .models import NativePost, FinalPricing
 
 
 MONTHS = {
@@ -49,4 +49,18 @@ class NativePostForm(forms.ModelForm):
             "description",
             "file",
             "secret_key",
+        )
+
+class FinalPricing(forms.ModelForm):
+    time_to_get_ready = forms.DateField(widget=forms.SelectDateWidget(months=MONTHS),
+        label="Data planowanej realizacji",)
+    price = forms.CharField(label="Cena",max_length=10)
+    comments = forms.CharField(label="Uwagi do wyceny", max_length=500, widget=forms.Textarea)
+
+    class Meta:
+        model = FinalPricing
+        fields = (
+            "time_to_get_ready",
+            "price",
+            "comments",
         )
