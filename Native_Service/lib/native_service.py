@@ -21,7 +21,7 @@ class ProgressStages:
     def in_queue_stage(self):
         self.current_stage = self.STAGES[0]
         performer_queue_alert_email(self.data, self.files)
-        customer_queue_alert_email(self.data)
+        customer_queue_alert_email(self.data, self.files)
 
     def accepted_stage(self):
         self.current_stage = self.STAGES[1]

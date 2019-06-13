@@ -8,7 +8,7 @@ SENDER = "nativeservice@nativeservice.pl"
 
 def file_list_creating(file_data):
     files_list = []
-    [files_list.append(f"{HOST_URL}/{f}\n") for f in file_data]
+    [files_list.append(f"{HOST_URL}/{f}\n".replace(' ', '_')) for f in file_data]
     return files_list
 
 

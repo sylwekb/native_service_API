@@ -42,7 +42,7 @@ class Pricing(FormView):
                 fs = FileSystemStorage(
                     location=settings.MEDIA_ROOT + f"uploads/{datetime.date.today()}/"
                 )
-                fs.save(f"{f}", ContentFile(f.read()))
+                fs.save(f"{f}".replace(' ', '_'), ContentFile(f.read()))
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
