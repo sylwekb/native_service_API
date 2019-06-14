@@ -1,15 +1,16 @@
-from django.shortcuts import render
-from django.views.generic import FormView, TemplateView
-from .models import NativePost
-from .forms import NativePostForm, FinalPricing
-from Native_Service.lib.native_service import ProgressStages, secret_key_generator
 from django.core.files.storage import FileSystemStorage
 from django.core.files.base import ContentFile
 from django.conf import settings
+from django.views.generic import FormView
+from django.shortcuts import render
+from .models import NativePost
+from .forms import NativePostForm, FinalPricingForm
+from Native_Service.lib.native_service import (
+    ProgressStages,
+    secret_key_generator,
+    final_pricing_url_genrator,
+)
 import datetime
-from django.urls import reverse
-
-
 
 """
 def dispatch(self, request, *args, **kwargs):
@@ -31,60 +32,91 @@ class Pricing(FormView):
     def get(self, request, *args, **kwargs):
         """ Method generates secret_key in every request. """
         self.secret_key = secret_key_generator()
+
+        # Passing secret_key by session to other methods
+        self.request.session["secret_key"] = self.secret_key
+
         # Sets secret_key as default value in form.
         self.initial = {"secret_key": self.secret_key}
         return self.render_to_response(self.get_context_data())
 
     def post(self, request, *args, **kwargs):
+        """ Method posts form and saves the files in storage"""
         form_class = self.get_form_class()
         form = self.get_form(form_class)
+
+        # Makes list of files
         self.files = request.FILES.getlist("file")
+
         if form.is_valid():
             for f in self.files:
                 fs = FileSystemStorage(
                     location=settings.MEDIA_ROOT + f"uploads/{datetime.date.today()}/"
                 )
                 fs.save(f"{f}".replace(" ", "_"), ContentFile(f.read()))
+
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
 
     def form_valid(self, form):
         """ Form validation with an email alert for NativeService. """
+
+        # Gets secret_key from session
+        self.secret_key = self.request.session["secret_key"]
         post = form.save(commit=False)
         post.save()
-        # initializing Progress Stages library
-        ProgressStages(form.cleaned_data, self.files)
+
+        # Creates custom url for performer
+        url = final_pricing_url_genrator(self.secret_key)
+        # Initializing Progress Stages library
+        ProgressStages(form.cleaned_data, self.files, url)
+
         self.request.session.set_test_cookie()
         return super().form_valid(form)
 
 
 class FormSubmit(Pricing):
-    """ Correct form view protected by session. """
+    """ Correct form view for CUSTOMER protected by session. """
+
+    def get(self, request, *args, **kwargs):
+        if self.request.session.test_cookie_worked():
+            # Gets secret_key from session
+            self.secret_key = self.request.session["secret_key"]
+            return self.render_to_response(self.get_context_data())
 
     def render_to_response(self, context, **response_kwargs):
         """ Form data rendering in submit view. Protected by session. """
         template_name = "upload.html"
-        posts = NativePost.objects.all()
-        args = posts.values().last()
+
         if self.request.session.test_cookie_worked():
+            # getting record from db by 'secret_key'
+            data = NativePost.objects.filter(secret_key=self.secret_key)
+            self.data_dict = {}
+            for i in data.values():
+                self.data_dict.update(i)
+
             self.request.session.delete_test_cookie()
-            return render(self.request, template_name, args)
+            return render(self.request, template_name, self.data_dict)
 
 
 class FinalPricing(FormView):
+    """ View for performer to set a price for customer. """
+
     template_name = "final_pricing.html"
-    form_class = FinalPricing
+    form_class = FinalPricingForm
     success_url = "final_pricing_submit"
 
     def get(self, request, *args, **kwargs):
-        db = NativePost
-        all = db.objects.filter(secret_key='i00ntk2xgj41')
+        # Gets 'secret_key' from url
+        path = self.request.path
+        secret_key = path.split("/", 2)[-1][:-1]
+        # Finds record in db with 'secret_key'
+        data = NativePost.objects.filter(secret_key=secret_key)
+
         self.data_dict = {}
-        for i in all.values():
-            self.data_dict['secret_key'] = i['secret_key']
+        for i in data.values():
+            self.data_dict.update(i)
 
-            print(i)
-        print(self.data_dict)
-
+        self.initial = {"secret_key": secret_key}
         return self.render_to_response(self.get_context_data())

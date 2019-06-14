@@ -51,16 +51,17 @@ class NativePostForm(forms.ModelForm):
             "secret_key",
         )
 
-class FinalPricing(forms.ModelForm):
-    time_to_get_ready = forms.DateField(widget=forms.SelectDateWidget(months=MONTHS),
-        label="Data planowanej realizacji",)
-    price = forms.CharField(label="Cena",max_length=10)
-    comments = forms.CharField(label="Uwagi do wyceny", max_length=500, widget=forms.Textarea)
+
+class FinalPricingForm(forms.ModelForm):
+    time_to_get_ready = forms.DateField(
+        widget=forms.SelectDateWidget(months=MONTHS), label="Data planowanej realizacji"
+    )
+    price = forms.CharField(label="Cena", max_length=10)
+    comments = forms.CharField(
+        label="Uwagi do wyceny", max_length=500, widget=forms.Textarea
+    )
+    secret_key = forms.CharField(required=True, disabled=True)
 
     class Meta:
         model = FinalPricing
-        fields = (
-            "time_to_get_ready",
-            "price",
-            "comments",
-        )
+        fields = ("time_to_get_ready", "price", "comments", "secret_key")
