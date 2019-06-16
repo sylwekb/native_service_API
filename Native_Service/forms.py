@@ -60,7 +60,7 @@ class FinalPricingForm(forms.ModelForm):
     comments = forms.CharField(
         label="Uwagi do wyceny", max_length=500, widget=forms.Textarea
     )
-    secret_key = forms.CharField(required=True, disabled=True)
+    secret_key = forms.CharField(required=True)
 
     class Meta:
         model = FinalPricing

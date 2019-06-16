@@ -23,6 +23,7 @@ class ProgressStages:
         self.files = files
         self.url = url
         self.price = price
+        self.url_accept_price = url_accept_price
         #self.in_queue_stage()
 
     def in_queue_stage(self):
@@ -32,7 +33,7 @@ class ProgressStages:
 
     def pricing_in_progress_stage(self):
         self.current_stage = self.STAGES[1]
-        customer_price_accept_email(self.data, self.price, self.url)
+        customer_price_accept_email(self.data, self.price, self.url, self.url_accept_price)
 
     def accepted_stage(self):
         self.current_stage = self.STAGES[2]
@@ -131,7 +132,7 @@ def customer_price_accept_email(data, price, url, price_accept_url):
         f"Witaj {data['name']}\n"
         f"Twoja wycena '{data['title']}' została zrealizowana! \n"
         f"Całkowity koszt usługi to {price['price']}\n"
-        f"Czas realizacji to {price['time_to_get_ready']}\n"
+        f"Czas realizacji to {price['time_to_get_ready']} zł.\n"
         f"Jeśli akceptujesz warunki realizacji zlecenia, kliknij link poniżej:\n"
         f"{price_accept_url}\n"
         f"Lub wejdź na stronę {url}\n"

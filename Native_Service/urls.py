@@ -14,6 +14,11 @@ urlpatterns = [
         name="final_pricing",
     ),
     path(
+        "final_pricing/<str:secret_key>/final_pricing_submit/",
+        views.FinalPricingSubmit.as_view(),
+        name="final_pricing_submit",
+    ),
+    path(
         "price_for_you/<str:secret_key>/",
         views.FinalPricing.as_view(),
         name="price_for_you",

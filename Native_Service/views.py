@@ -1,9 +1,9 @@
 from django.core.files.storage import FileSystemStorage
 from django.core.files.base import ContentFile
 from django.conf import settings
-from django.views.generic import FormView
+from django.views.generic import FormView, TemplateView
 from django.shortcuts import render
-from .models import NativePost, FinalPricing
+from .models import NativePost, FinalPricing as FinalPricingModel
 from .forms import NativePostForm, FinalPricingForm
 from Native_Service.lib.native_service import ProgressStages
 from Native_Service.lib.native_service import secret_key_generator
@@ -89,7 +89,7 @@ class SubmitPricing(Pricing):
 
     def render_to_response(self, context, **response_kwargs):
         """ Form data rendering in submit view. Protected by session. """
-        template_name = "submit_pricing.html"
+        template_name = "pricing_submit.html"
 
         if self.request.session.test_cookie_worked():
             # getting record from db by 'secret_key'
@@ -127,7 +127,6 @@ class FinalPricing(FormView):
         self.initial = {"secret_key": self.secret_key}
         return self.render_to_response(self.get_context_data())
 
-    # todo post and form_valid
 
     def form_valid(self, form):
         """ Form validation with an email alert for NativeService. """
@@ -137,14 +136,14 @@ class FinalPricing(FormView):
         # Gets secret_key from session
         self.secret_key = self.request.session["secret_key"]
 
-        # getting record from NativePost by 'secret_key'
+        # Gets record from NativePost by 'secret_key'
         data = NativePost.objects.filter(secret_key=self.secret_key)
         self.data_dict = {}
         for i in data.values():
             self.data_dict.update(i)
 
-        # getting record from FinalPricing by 'secret_key'
-        price = FinalPricing.objects.filter(secret_key=self.secret_key)
+        # Gets record from FinalPricing by 'secret_key'
+        price = FinalPricingModel.objects.filter(secret_key=self.secret_key)
         self.price_dict = {}
         for j in price.values():
             self.price_dict.update(j)
@@ -154,7 +153,6 @@ class FinalPricing(FormView):
 
         # Creates url which gives possibility to accept price by customer
         price_accept_url = accept_price_url_generator(self.secret_key)
-
         # Setting stage in Progress Stages library
         ProgressStages(
             data=self.data_dict,
@@ -165,3 +163,6 @@ class FinalPricing(FormView):
 
         self.request.session.set_test_cookie()
         return super().form_valid(form)
+
+class FinalPricingSubmit(TemplateView):
+    template_name = "final_pricing_submit.html"
