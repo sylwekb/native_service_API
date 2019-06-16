@@ -1,5 +1,5 @@
 from django.db import models
-from django.urls import reverse
+#from django.urls import reverse
 
 
 class NativePost(models.Model):
@@ -15,7 +15,7 @@ class NativePost(models.Model):
     secret_key = models.CharField(max_length=12)
 
     def __str__(self):
-        return self.title
+        return f'{self.name} {self.last_name} tel:{self.phone} key:{self.secret_key}'
 
 
 class FinalPricing(models.Model):
@@ -23,6 +23,10 @@ class FinalPricing(models.Model):
     price = models.CharField(max_length=10)
     comments = models.CharField(max_length=500)
     secret_key = models.CharField(max_length=12)
+
+    def __str__(self):
+        return self.secret_key
+
 
     """
     def get_absolute_url(self):
