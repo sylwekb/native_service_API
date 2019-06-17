@@ -36,12 +36,12 @@ class ProgressStages:
 
     def in_queue_stage(self):
         self.current_stage = self.STAGES[0]
-        performer_queue_alert_email(self.data, self.files, self.url)
-        customer_queue_alert_email(self.data, self.files)
+        EmailGenerator().performer_queue_alert_email(self.data, self.files, self.url)
+        EmailGenerator().customer_queue_alert_email(self.data, self.files)
 
     def pricing_in_progress_stage(self):
         self.current_stage = self.STAGES[1]
-        customer_price_accept_email(
+        EmailGenerator().customer_price_accept_email(
             self.data, self.price, self.url, self.url_accept_price
         )
 
@@ -60,9 +60,6 @@ class ProgressStages:
 
 
 class SecretKeyGenerator:
-    def __init__(self, *args, **kwargs):
-        pass
-
     def secret_key_generator(self):
         """ Function generates secret keys. """
         letters, numbers = string.ascii_lowercase, string.digits
@@ -70,9 +67,6 @@ class SecretKeyGenerator:
 
 
 class UrlsGenerator:
-    def __init__(self, *args, **kwargs):
-        pass
-
     def secret_key_generator(self):
         """ Function generates secret keys. """
         letters, numbers = string.ascii_lowercase, string.digits
@@ -100,66 +94,65 @@ class UrlsGenerator:
         return f"{LOCAL_HOST_URL}/accept_price/{secret_key}/"
 
 
-def performer_queue_alert_email(data, files="No files.", url="No url."):
-    recipients_list = PERFORMERS_LIST
+class EmailGenerator:
+    def performer_queue_alert_email(self, data, files="No files.", url="No url."):
+        recipients_list = PERFORMERS_LIST
 
-    send_mail(
-        f"Nowe zlecenie!",
-        f"Wejdź na https://nativeservice.pl/admin/ i sprawdź co na Ciebie czeka.\n"
-        f"Imię: {data['name']}\n"
-        f"Nazwisko: {data['last_name']}\n"
-        f"Nazwa zlecenia: {data['title']}\n"
-        f"Email: {data['email']}\n"
-        f"Telefon: {data['phone']}\n"
-        f"Data najpóźniejszej realizacji: {data['date_to_be_done']}\n"
-        f"Opis: {data['description']}\n"
-        f"{''.join(UrlsGenerator().files_urls_list_creating(files))}"
-        f"\n\nTen email został'wygenerowany automatycznie. Prosimy o nie odpowiadanie na wiadomość.\n"
-        f"Wejdź na {url} i dokonaj wyceny.",
-        SENDER,
-        recipients_list,
-        fail_silently=False,
-    )
+        send_mail(
+            f"Nowe zlecenie!",
+            f"Wejdź na https://nativeservice.pl/admin/ i sprawdź co na Ciebie czeka.\n"
+            f"Imię: {data['name']}\n"
+            f"Nazwisko: {data['last_name']}\n"
+            f"Nazwa zlecenia: {data['title']}\n"
+            f"Email: {data['email']}\n"
+            f"Telefon: {data['phone']}\n"
+            f"Data najpóźniejszej realizacji: {data['date_to_be_done']}\n"
+            f"Opis: {data['description']}\n"
+            f"{''.join(UrlsGenerator().files_urls_list_creating(files))}"
+            f"\n\nTen email został'wygenerowany automatycznie. Prosimy o nie odpowiadanie na wiadomość.\n"
+            f"Wejdź na {url} i dokonaj wyceny.",
+            SENDER,
+            recipients_list,
+            fail_silently=False,
+        )
 
+    def customer_queue_alert_email(self, data, files="No files."):
+        recipients_list = [data["email"]]
 
-def customer_queue_alert_email(data, files="No files."):
-    recipients_list = [data["email"]]
+        send_mail(
+            f"Native Service - wycena zlecenia.",
+            f"Witaj {data['name']}\n"
+            f"Twój unikalny kod do dalszej realizacji zlecenia to: {data['secret_key']}.\n"
+            f"Twoja wycena '{data['title']}' oczekuje w kolejce! \n"
+            f"Wyceny zleceń wysłanych w godzinach od 8 rano do 20 realizujemy w ciągu 15 minut!\n"
+            f"Oto Twoje dane: \n"
+            f"Imię: {data['name']}\n"
+            f"Nazwisko: {data['last_name']}\n"
+            f"Nazwa zlecenia: {data['title']}\n"
+            f"Email: {data['email']}\n"
+            f"Telefon: {data['phone']}\n"
+            f"Data najpóźniejszej realizacji {data['date_to_be_done']}\n"
+            f"Opis: {data['description']}\n"
+            f"{''.join(UrlsGenerator().files_urls_list_creating(files))}"
+            f"\n\nTen email został'wygenerowany automatycznie. Prosimy o nie odpowiadanie na wiadomość.",
+            SENDER,
+            recipients_list,
+            fail_silently=False,
+        )
 
-    send_mail(
-        f"Native Service - wycena zlecenia.",
-        f"Witaj {data['name']}\n"
-        f"Twój unikalny kod do dalszej realizacji zlecenia to: {data['secret_key']}.\n"
-        f"Twoja wycena '{data['title']}' oczekuje w kolejce! \n"
-        f"Wyceny zleceń wysłanych w godzinach od 8 rano do 20 realizujemy w ciągu 15 minut!\n"
-        f"Oto Twoje dane: \n"
-        f"Imię: {data['name']}\n"
-        f"Nazwisko: {data['last_name']}\n"
-        f"Nazwa zlecenia: {data['title']}\n"
-        f"Email: {data['email']}\n"
-        f"Telefon: {data['phone']}\n"
-        f"Data najpóźniejszej realizacji {data['date_to_be_done']}\n"
-        f"Opis: {data['description']}\n"
-        f"{''.join(UrlsGenerator().files_urls_list_creating(files))}"
-        f"\n\nTen email został'wygenerowany automatycznie. Prosimy o nie odpowiadanie na wiadomość.",
-        SENDER,
-        recipients_list,
-        fail_silently=False,
-    )
-
-
-def customer_price_accept_email(data, price, url, price_accept_url):
-    recipients_list = [data["email"]]
-    send_mail(
-        f"Native Service - wycena zlecenia gotowa.",
-        f"Witaj {data['name']}\n"
-        f"Twoja wycena '{data['title']}' została zrealizowana! \n"
-        f"Całkowity koszt usługi to {price['price']}\n"
-        f"Czas realizacji to {price['time_to_get_ready']} zł.\n"
-        f"Jeśli akceptujesz warunki realizacji zlecenia, kliknij link poniżej:\n"
-        f"{price_accept_url}\n"
-        f"Lub wejdź na stronę {url}\n"
-        f"\n\nTen email został'wygenerowany automatycznie. Prosimy o nie odpowiadanie na wiadomość.",
-        SENDER,
-        recipients_list,
-        fail_silently=False,
-    )
+    def customer_price_accept_email(self, data, price, url, price_accept_url):
+        recipients_list = [data["email"]]
+        send_mail(
+            f"Native Service - wycena zlecenia gotowa.",
+            f"Witaj {data['name']}\n"
+            f"Twoja wycena '{data['title']}' została zrealizowana! \n"
+            f"Całkowity koszt usługi to {price['price']}\n"
+            f"Czas realizacji to {price['time_to_get_ready']} zł.\n"
+            f"Jeśli akceptujesz warunki realizacji zlecenia, kliknij link poniżej:\n"
+            f"{price_accept_url}\n"
+            f"Lub wejdź na stronę {url}\n"
+            f"\n\nTen email został'wygenerowany automatycznie. Prosimy o nie odpowiadanie na wiadomość.",
+            SENDER,
+            recipients_list,
+            fail_silently=False,
+        )
