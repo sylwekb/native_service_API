@@ -6,15 +6,13 @@ import django.utils.timezone
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('Native_Service', '0009_NativePost_model_fixed_up'),
-    ]
+    dependencies = [("Native_Service", "0009_NativePost_model_fixed_up")]
 
     operations = [
         migrations.AddField(
-            model_name='finalpricing',
-            name='secret_key',
+            model_name="finalpricing",
+            name="secret_key",
             field=models.CharField(default=django.utils.timezone.now, max_length=12),
             preserve_default=False,
-        ),
+        )
     ]

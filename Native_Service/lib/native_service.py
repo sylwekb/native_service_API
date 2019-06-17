@@ -17,14 +17,22 @@ class ProgressStages:
 
     STAGES = ("in_queue", "pricing_in_progress", "accepted", "in_progress", "done")
 
-    def __init__(self, data=None, files=None, url=None, price=None, url_accept_price = None, *args, **kwargs):
+    def __init__(
+        self,
+        data=None,
+        files=None,
+        url=None,
+        price=None,
+        url_accept_price=None,
+        *args,
+        **kwargs,
+    ):
         self.current_stage = None
         self.data = data
         self.files = files
         self.url = url
         self.price = price
         self.url_accept_price = url_accept_price
-        #self.in_queue_stage()
 
     def in_queue_stage(self):
         self.current_stage = self.STAGES[0]
@@ -33,7 +41,9 @@ class ProgressStages:
 
     def pricing_in_progress_stage(self):
         self.current_stage = self.STAGES[1]
-        customer_price_accept_email(self.data, self.price, self.url, self.url_accept_price)
+        customer_price_accept_email(
+            self.data, self.price, self.url, self.url_accept_price
+        )
 
     def accepted_stage(self):
         self.current_stage = self.STAGES[2]
@@ -49,33 +59,45 @@ class ProgressStages:
         pass
 
 
-def secret_key_generator():
-    """ Function generates secret keys. """
-    letters, numbers = string.ascii_lowercase, string.digits
-    return "".join(random.choice(letters + numbers) for i in range(12))
+class SecretKeyGenerator:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def secret_key_generator(self):
+        """ Function generates secret keys. """
+        letters, numbers = string.ascii_lowercase, string.digits
+        return "".join(random.choice(letters + numbers) for i in range(12))
 
 
-def files_urls_list_creating(file_data):
-    """ Function generates uploaded file list. """
-    files_list = []
-    [
-        files_list.append(f"{HOST_URL}{settings.MEDIA_URL}{f}\n".replace(" ", "_"))
-        for f in file_data
-    ]
-    return files_list
+class UrlsGenerator:
+    def __init__(self, *args, **kwargs):
+        pass
 
+    def secret_key_generator(self):
+        """ Function generates secret keys. """
+        letters, numbers = string.ascii_lowercase, string.digits
+        return "".join(random.choice(letters + numbers) for i in range(12))
 
-def final_pricing_url_genrator(secret_key):
-    """ Function generates url for performer to make some price. """
-    return f"{LOCAL_HOST_URL}/final_pricing/{secret_key}/"
+    def files_urls_list_creating(self, file_data):
+        """ Function generates uploaded file list. """
+        files_list = []
+        [
+            files_list.append(f"{HOST_URL}{settings.MEDIA_URL}{f}\n".replace(" ", "_"))
+            for f in file_data
+        ]
+        return files_list
 
-def accept_view_url_generator(secret_key):
-    """ Function generates url for customer to see price. """
-    return f"{LOCAL_HOST_URL}/price_for_you/{secret_key}/"
+    def final_pricing_url_genrator(self, secret_key):
+        """ Function generates url for performer to make some price. """
+        return f"{LOCAL_HOST_URL}/final_pricing/{secret_key}/"
 
-def accept_price_url_generator(secret_key):
-    """ Function generates url for customer for price accept. """
-    return f"{LOCAL_HOST_URL}/accept_price/{secret_key}/"
+    def accept_view_url_generator(self, secret_key):
+        """ Function generates url for customer to see price. """
+        return f"{LOCAL_HOST_URL}/price_for_you/{secret_key}/"
+
+    def accept_price_url_generator(self, secret_key):
+        """ Function generates url for customer for price accept. """
+        return f"{LOCAL_HOST_URL}/accept_price/{secret_key}/"
 
 
 def performer_queue_alert_email(data, files="No files.", url="No url."):
@@ -91,7 +113,7 @@ def performer_queue_alert_email(data, files="No files.", url="No url."):
         f"Telefon: {data['phone']}\n"
         f"Data najpóźniejszej realizacji: {data['date_to_be_done']}\n"
         f"Opis: {data['description']}\n"
-        f"{''.join(files_urls_list_creating(files))}"
+        f"{''.join(UrlsGenerator().files_urls_list_creating(files))}"
         f"\n\nTen email został'wygenerowany automatycznie. Prosimy o nie odpowiadanie na wiadomość.\n"
         f"Wejdź na {url} i dokonaj wyceny.",
         SENDER,
@@ -117,16 +139,16 @@ def customer_queue_alert_email(data, files="No files."):
         f"Telefon: {data['phone']}\n"
         f"Data najpóźniejszej realizacji {data['date_to_be_done']}\n"
         f"Opis: {data['description']}\n"
-        f"{''.join(files_urls_list_creating(files))}"
+        f"{''.join(UrlsGenerator().files_urls_list_creating(files))}"
         f"\n\nTen email został'wygenerowany automatycznie. Prosimy o nie odpowiadanie na wiadomość.",
         SENDER,
         recipients_list,
         fail_silently=False,
     )
 
+
 def customer_price_accept_email(data, price, url, price_accept_url):
     recipients_list = [data["email"]]
-    #todo email does not work
     send_mail(
         f"Native Service - wycena zlecenia gotowa.",
         f"Witaj {data['name']}\n"
