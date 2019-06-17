@@ -166,6 +166,7 @@ class FinalPricing(FormView):
 
 class FinalPricingSubmit(TemplateView):
     """ Simple form submit view. """
+
     template_name = "final_pricing_submit.html"
 
     def get(self, request, *args, **kwargs):

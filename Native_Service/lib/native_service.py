@@ -61,19 +61,19 @@ class ProgressStages:
 
 class SecretKeyGenerator:
     def secret_key_generator(self):
-        """ Function generates secret keys. """
+        """ Method generates secret keys. """
         letters, numbers = string.ascii_lowercase, string.digits
         return "".join(random.choice(letters + numbers) for i in range(12))
 
 
 class UrlsGenerator:
     def secret_key_generator(self):
-        """ Function generates secret keys. """
+        """ Method generates secret keys. """
         letters, numbers = string.ascii_lowercase, string.digits
         return "".join(random.choice(letters + numbers) for i in range(12))
 
     def files_urls_list_creating(self, file_data):
-        """ Function generates uploaded file list. """
+        """ Method generates uploaded file list. """
         files_list = []
         [
             files_list.append(f"{HOST_URL}{settings.MEDIA_URL}{f}\n".replace(" ", "_"))
@@ -82,15 +82,15 @@ class UrlsGenerator:
         return files_list
 
     def final_pricing_url_genrator(self, secret_key):
-        """ Function generates url for performer to make some price. """
+        """ Method generates url for performer to make some price. """
         return f"{LOCAL_HOST_URL}/final_pricing/{secret_key}/"
 
     def accept_view_url_generator(self, secret_key):
-        """ Function generates url for customer to see price. """
+        """ Method generates url for customer to see price. """
         return f"{LOCAL_HOST_URL}/price_for_you/{secret_key}/"
 
     def accept_price_url_generator(self, secret_key):
-        """ Function generates url for customer for price accept. """
+        """ Method generates url for customer for price accept. """
         return f"{LOCAL_HOST_URL}/accept_price/{secret_key}/"
 
 
