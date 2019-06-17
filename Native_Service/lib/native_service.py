@@ -67,10 +67,7 @@ class SecretKeyGenerator:
 
 
 class UrlsGenerator:
-    def secret_key_generator(self):
-        """ Method generates secret keys. """
-        letters, numbers = string.ascii_lowercase, string.digits
-        return "".join(random.choice(letters + numbers) for i in range(12))
+    """ The class contains all methods generating URL's"""
 
     def files_urls_list_creating(self, file_data):
         """ Method generates uploaded file list. """
@@ -95,6 +92,8 @@ class UrlsGenerator:
 
 
 class EmailGenerator:
+    """ The class contains all email sending methods. """
+
     def performer_queue_alert_email(self, data, files="No files.", url="No url."):
         recipients_list = PERFORMERS_LIST
 
