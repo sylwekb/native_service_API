@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="nativepost",
             name="secret_key",
-            field=models.CharField(default=django.utils.timezone.now, max_length=12),
+            field=models.CharField(default=django.utils.timezone.now, max_length=45),
             preserve_default=False,
         )
     ]
