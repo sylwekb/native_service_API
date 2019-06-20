@@ -46,9 +46,6 @@ ul li a {
 .toggle.menu.content {
 	width: auto;
 }
-.toggle.menu.content a {
-	text-decoration:none;
-}
 .toggle.menu.content h4{
 	display: inline-block;
 	position: relative;
@@ -252,7 +249,7 @@ ul li a {
 	margin: auto;
 	margin-bottom: 30px;
 	min-height: auto;
-	background-image: linear-gradient(to bottom, hsl(348, 100%, 61%), hsl(198, 1%, 88%));
+	background-image: linear-gradient(to bottom right, hsl(348, 100%, 61%), hsl(348, 100%, 70%));
 }
 .row.bar.hidden.text1{
 	display: none;
@@ -273,16 +270,16 @@ ul li a {
 	color: black;
 	font-family: 'Pacifico', cursive;
 }
-.inside.width.bar.content{
+.full.width.bar.content{
 	width: 70%;
 	margin: auto;
 	display: block;
 }
-.inside.width.bar.content h5 {
+.full.width.bar.content h5 {
 	font-family: 'Lato', sans-serif;
 }
 
-.inside.width.bar h1 {
+.full.width.bar h1 {
 	position: relative;
 	margin: 0;
 	padding-left: 20px;
@@ -290,7 +287,7 @@ ul li a {
 	color: black;
 	font-family: 'Baloo Thambi', cursive;
 }
-.inside.width.bar h2 {
+.full.width.bar h2 {
 	position: relative;
 	right: 20%;
 	text-align: right;
@@ -300,7 +297,7 @@ ul li a {
 	color: black;
 	font-family: 'Pacifico', cursive;
 }
-.inside.width.bar h3 {
+.full.width.bar h3 {
 	position: relative;
 	margin: 0;
 	padding-left: 20px;
@@ -343,7 +340,7 @@ ul li a {
 .second.bar{
 	width: auto;
 	min-height: auto;
-	background-image: linear-gradient(to bottom, hsla(198, 1%, 88%, 0.95), hsla(198, 1%, 88%, 0.90));
+	background-image: linear-gradient(to bottom right, hsl(348, 100%, 61%), hsl(348, 100%, 70%));
 	font-family: 'Oswald', sans-serif;
 	font-size: 20px;
 	padding-top: 20px;
@@ -365,11 +362,11 @@ ul li a {
 	margin-top: 10px;
 	margin-bottom: 10px;
 	font-family: 'Mukta', sans-serif;
-	background-image: linear-gradient(to bottom right, hsla(198, 1%, 88%, 0.95), hsla(198, 1%, 88%, 0.90));
+	background-image: linear-gradient(to bottom right, hsl(348, 100%, 61%), hsla(348, 100%, 70%, 0.75));
 	padding-top: 10px;
 	padding-bottom: 10px;
-	padding-left: 10px;
-	padding-right: 10px;
+	padding-left: 20px;
+	padding-right: 20px;
 	border-radius: 25px;
 }
 .stepbystep.img{
@@ -439,33 +436,7 @@ ul li a {
 	width: 60%;
 	height: auto;
 }
-/*  new step   */
-.stepbystep.price{
-	font-size: 18px;
-	text-align: center;
-}
 
-.stepbystep.price h1 {
-	text-align: left;
-	font-family: 'Oswald', sans-serif;
-	font-size: 25px;
-}
-.stepbystep.price p {
-	text-align: left;
-}
-
-.stepbystep.price a {
-	text-decoration: none;
-}
-.box.price{
-	display: block;
-	border: 2px solid #cccccc;
-	border-radius: 15px;
-	padding-left: 20px;
-	width: 98%;
-	word-wrap: break-word;
-	margin-bottom: 15px;
-}
 .btn{
 	background: darkgray;
 	border: 2px solid #000;
@@ -558,29 +529,9 @@ header::before{
 }
 
 @media only screen and (max-width: 1150px) {
-
-	.body.seventy{
-		width: 95%;
+.body.seventy{
+	width: 95%;
 	}
-	.second.bar{
-	width: auto;
-	min-height: auto;
-	background-image: linear-gradient(to bottom, hsl(348, 100%, 61%), hsl(198, 1%, 88%));
-	font-family: 'Oswald', sans-serif;
-	font-size: 20px;
-	padding-top: 20px;
-	padding-left: 20px;
-	color: black;
-	text-align: center;
-	}
-	.box.price{
-	display: block;
-	border: 2px solid #cccccc;
-	border-radius: 15px;
-	padding: 10px;
-	width: 92%;
-	word-wrap: break-word;
-}
 }
 
 
@@ -604,10 +555,6 @@ input, select {
   border: 1px solid #ccc;
   border-radius: 4px;
   resize: vertical;
-}
-
-select{
-	background-color: #B3B3B3;
 }
 
 label {
@@ -649,12 +596,6 @@ input[type=submit]:hover {
     width: 98%;
     height: 100px;
 }
-
-#id_comments {
-    width: 98%;
-    height: 100px;
-}
-
 
 #id_email {
     width: 100%;
