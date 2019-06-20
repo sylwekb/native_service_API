@@ -22,6 +22,19 @@ def dispatch(self, request, *args, **kwargs):
 """
 
 
+def get_data_from_models(secret_key):
+    """ Function returns all data filtered with secret_key as a dict."""
+    data = NativePost.objects.filter(secret_key=secret_key)
+    data2 = FinalPricingModel.objects.filter(secret_key=secret_key)
+
+    data_dict = {}
+    for i in data.values():
+        data_dict.update(i)
+    for j in data2.values():
+        data_dict.update(j)
+    return data_dict
+
+
 class Pricing(FormView):
     """ Pricing view for not logged in users. """
 
@@ -92,11 +105,8 @@ class SubmitPricing(Pricing):
         template_name = "pricing_submit.html"
 
         if self.request.session.test_cookie_worked():
-            # getting record from db by 'secret_key'
-            data = NativePost.objects.filter(secret_key=self.secret_key)
-            data_dict = {}
-            for i in data.values():
-                data_dict.update(i)
+            # Function gets all data from all models with secret_key
+            data_dict = get_data_from_models(self.secret_key)
 
             self.request.session.delete_test_cookie()
             return render(self.request, template_name, data_dict)
@@ -117,13 +127,6 @@ class FinalPricing(FormView):
         # Passing secret_key by session to other methods
         self.request.session["secret_key"] = secret_key
 
-        # Finds record in db with 'secret_key'
-        data = NativePost.objects.filter(secret_key=secret_key)
-
-        data_dict = {}
-        for i in data.values():
-            data_dict.update(i)
-
         self.initial = {"secret_key": secret_key}
         return self.render_to_response(self.get_context_data())
 
@@ -135,29 +138,18 @@ class FinalPricing(FormView):
         # Gets secret_key from session
         secret_key = self.request.session["secret_key"]
 
-        # Gets record from NativePost by 'secret_key'
-        data = NativePost.objects.filter(secret_key=secret_key)
-        data_dict = {}
-        for i in data.values():
-            data_dict.update(i)
-
-        # Gets record from FinalPricing by 'secret_key'
-        price = FinalPricingModel.objects.filter(secret_key=secret_key)
-        price_dict = {}
-        for j in price.values():
-            price_dict.update(j)
+        # Function gets all data from all models with secret_key
+        data_dict = get_data_from_models(secret_key)
 
         # Creates url for customer to see price
         email_url = UrlsGenerator().accept_view_url_generator(secret_key)
 
         # Creates url which gives possibility to accept price by customer
         price_accept_url = UrlsGenerator().accept_price_url_generator(secret_key)
+
         # Setting stage in Progress Stages library
         ProgressStages(
-            data=data_dict,
-            url=email_url,
-            price=price_dict,
-            url_accept_price=price_accept_url,
+            data=data_dict, url=email_url, url_accept_price=price_accept_url
         ).pricing_in_progress_stage()
 
         self.request.session.set_test_cookie()
@@ -188,33 +180,27 @@ class PriceForCustomer(TemplateView):
         path = self.request.path
         secret_key = path.rsplit("/")[-2]
 
-        #todo variables data and data2 needs better names
+        # Passing secret key with session to next view
+        self.request.session["secret_key"] = secret_key
 
-        # Finds record in db with 'secret_key'
-        data = NativePost.objects.filter(secret_key=secret_key)
-
-        # Finds record in db with 'secret_key'
-        data2 = FinalPricingModel.objects.filter(secret_key=secret_key)
+        # Function gets all data from all models with secret_key
+        data_dict = get_data_from_models(secret_key)
 
         # Creates url which gives possibility to accept price by customer
         price_accept_url = UrlsGenerator().accept_price_url_generator(secret_key)
-
-        data_dict = {}
-        for i in data.values():
-            data_dict.update(i)
-        for j in data2.values():
-            data_dict.update(j)
-        data_dict.update({'accept_url': price_accept_url})
+        data_dict.update({"accept_url": price_accept_url})
 
         return self.render_to_response(data_dict)
 
-class PriceAccepted(TemplateView):
+
+class PriceAcceptedDotpay(TemplateView):
     template_name = "price_accepted.html"
+    """ View for a customer to use Dotpay. """
 
     def get(self, request, *args, **kwargs):
-        data_dict = {}
-
-
-
         if self.request.session.test_cookie_worked():
+            # Function gets all data from all models with secret_key
+            data_dict = get_data_from_models(self.request.session["secret_key"])
+
+            self.request.session.delete_test_cookie()
             return self.render_to_response(data_dict)

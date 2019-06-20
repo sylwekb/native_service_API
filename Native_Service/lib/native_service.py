@@ -17,21 +17,11 @@ class ProgressStages:
 
     STAGES = ("in_queue", "pricing_in_progress", "accepted", "in_progress", "done")
 
-    def __init__(
-        self,
-        data=None,
-        files=None,
-        url=None,
-        price=None,
-        url_accept_price=None,
-        *args,
-        **kwargs,
-    ):
+    def __init__(self, data=None, files=None, url=None, url_accept_price=None):
         self.current_stage = None
         self.data = data
         self.files = files
         self.url = url
-        self.price = price
         self.url_accept_price = url_accept_price
 
     def in_queue_stage(self):
@@ -41,9 +31,7 @@ class ProgressStages:
 
     def pricing_in_progress_stage(self):
         self.current_stage = self.STAGES[1]
-        EmailGenerator().customer_price_accept_email(
-            self.data, self.price, self.url, self.url_accept_price
-        )
+        EmailGenerator().customer_price_accept_email(self.data, self.url)
 
     def accepted_stage(self):
         self.current_stage = self.STAGES[2]
@@ -88,7 +76,7 @@ class UrlsGenerator:
 
     def accept_price_url_generator(self, secret_key):
         """ Method generates url for customer for price accept. """
-        return f"{LOCAL_HOST_URL}/accept_price/{secret_key}/"
+        return f"{LOCAL_HOST_URL}/price_accepted/{secret_key}/"
 
 
 class EmailGenerator:
@@ -139,18 +127,17 @@ class EmailGenerator:
             fail_silently=False,
         )
 
-    def customer_price_accept_email(self, data, price, url, price_accept_url):
+    def customer_price_accept_email(self, data, url):
         recipients_list = [data["email"]]
         send_mail(
             f"Native Service - wycena zlecenia gotowa.",
             f"Witaj {data['name']}\n"
             f"Twoja wycena '{data['title']}' została zrealizowana! \n"
-            f"Całkowity koszt usługi to {price['price']} zł\n"
-            #todo |/ this time should be got by some 'time' method
-            f"Czas realizacji to {price['time_to_get_ready']}.\n"
-            f"Jeśli akceptujesz warunki realizacji zlecenia, kliknij link poniżej:\n"
-            f"{price_accept_url}\n"
-            f"Lub wejdź na stronę {url}\n"
+            f"Całkowity koszt usługi to {data['price']} zł\n"
+            # todo |/ this time should be got by some 'time' method
+            f"Czas realizacji to {data['time_to_get_ready']}.\n"
+            f"Uwagi: {data['comments']}.\n"
+            f"Aby zapoznać się ze szczegółami kliknij w link: {url}\n"
             f"\n\nTen email został'wygenerowany automatycznie. Prosimy o nie odpowiadanie na wiadomość.",
             SENDER,
             recipients_list,

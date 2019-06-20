@@ -23,4 +23,9 @@ urlpatterns = [
         views.PriceForCustomer.as_view(),
         name="price_for_you",
     ),
+    path(
+        "price_accepted/<str:secret_key>/",
+        views.PriceAcceptedDotpay.as_view(),
+        name="price_accepted",
+    ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

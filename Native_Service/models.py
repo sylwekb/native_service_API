@@ -12,7 +12,7 @@ class NativePost(models.Model):
     date_time = models.DateTimeField(auto_now_add=True)
     date_to_be_done = models.DateField()
     description = models.CharField(max_length=500)
-    #todo model shows only one file when more of them are uploaded
+    # todo model shows only one file when more of them are uploaded
     file = models.FileField(upload_to="uploads/%Y/%m/%d/", null=True, blank=True)
     secret_key = models.CharField(max_length=45)
 
@@ -24,11 +24,11 @@ class FinalPricing(models.Model):
     time_to_get_ready = models.DateField()
     price = models.CharField(max_length=10)
     comments = models.CharField(max_length=500)
-    #todo need to lock situation when secret key is uploaded more than once
+    # todo need to lock situation when secret key is uploaded more than once
     secret_key = models.CharField(max_length=45)
 
     def __str__(self):
-        #todo model needs to get more information from NativePost
+        # todo model needs to get more information from NativePost
         return self.secret_key
 
     """
