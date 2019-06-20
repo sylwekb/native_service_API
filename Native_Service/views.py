@@ -33,13 +33,13 @@ class Pricing(FormView):
 
     def get(self, request, *args, **kwargs):
         """ Method generates secret_key in every request. """
-        self.secret_key = SecretKeyGenerator().secret_key_generator()
+        secret_key = SecretKeyGenerator().secret_key_generator()
 
         # Passing secret_key by session to other methods
-        self.request.session["secret_key"] = self.secret_key
+        self.request.session["secret_key"] = secret_key
 
         # Sets secret_key as default value in form.
-        self.initial = {"secret_key": self.secret_key}
+        self.initial = {"secret_key": secret_key}
         return self.render_to_response(self.get_context_data())
 
     def post(self, request, *args, **kwargs):
@@ -65,12 +65,12 @@ class Pricing(FormView):
         """ Form validation with an email alert for NativeService. """
 
         # Gets secret_key from session
-        self.secret_key = self.request.session["secret_key"]
+        secret_key = self.request.session["secret_key"]
         post = form.save(commit=False)
         post.save()
 
         # Creates custom url for performer
-        url = UrlsGenerator().final_pricing_url_genrator(self.secret_key)
+        url = UrlsGenerator().final_pricing_url_genrator(secret_key)
         # Initializing Progress Stages library
         ProgressStages(form.cleaned_data, self.files, url).in_queue_stage()
 
@@ -94,12 +94,12 @@ class SubmitPricing(Pricing):
         if self.request.session.test_cookie_worked():
             # getting record from db by 'secret_key'
             data = NativePost.objects.filter(secret_key=self.secret_key)
-            self.data_dict = {}
+            data_dict = {}
             for i in data.values():
-                self.data_dict.update(i)
+                data_dict.update(i)
 
             self.request.session.delete_test_cookie()
-            return render(self.request, template_name, self.data_dict)
+            return render(self.request, template_name, data_dict)
 
 
 class FinalPricing(FormView):
@@ -112,19 +112,19 @@ class FinalPricing(FormView):
     def get(self, request, *args, **kwargs):
         # Gets 'secret_key' from url
         path = self.request.path
-        self.secret_key = path.rsplit("/")[-2]
+        secret_key = path.rsplit("/")[-2]
 
         # Passing secret_key by session to other methods
-        self.request.session["secret_key"] = self.secret_key
+        self.request.session["secret_key"] = secret_key
 
         # Finds record in db with 'secret_key'
-        data = NativePost.objects.filter(secret_key=self.secret_key)
+        data = NativePost.objects.filter(secret_key=secret_key)
 
-        self.data_dict = {}
+        data_dict = {}
         for i in data.values():
-            self.data_dict.update(i)
+            data_dict.update(i)
 
-        self.initial = {"secret_key": self.secret_key}
+        self.initial = {"secret_key": secret_key}
         return self.render_to_response(self.get_context_data())
 
     def form_valid(self, form):
@@ -133,30 +133,30 @@ class FinalPricing(FormView):
         post.save()
 
         # Gets secret_key from session
-        self.secret_key = self.request.session["secret_key"]
+        secret_key = self.request.session["secret_key"]
 
         # Gets record from NativePost by 'secret_key'
-        data = NativePost.objects.filter(secret_key=self.secret_key)
-        self.data_dict = {}
+        data = NativePost.objects.filter(secret_key=secret_key)
+        data_dict = {}
         for i in data.values():
-            self.data_dict.update(i)
+            data_dict.update(i)
 
         # Gets record from FinalPricing by 'secret_key'
-        price = FinalPricingModel.objects.filter(secret_key=self.secret_key)
-        self.price_dict = {}
+        price = FinalPricingModel.objects.filter(secret_key=secret_key)
+        price_dict = {}
         for j in price.values():
-            self.price_dict.update(j)
+            price_dict.update(j)
 
         # Creates url for customer to see price
-        email_url = UrlsGenerator().accept_view_url_generator(self.secret_key)
+        email_url = UrlsGenerator().accept_view_url_generator(secret_key)
 
         # Creates url which gives possibility to accept price by customer
-        price_accept_url = UrlsGenerator().accept_price_url_generator(self.secret_key)
+        price_accept_url = UrlsGenerator().accept_price_url_generator(secret_key)
         # Setting stage in Progress Stages library
         ProgressStages(
-            data=self.data_dict,
+            data=data_dict,
             url=email_url,
-            price=self.price_dict,
+            price=price_dict,
             url_accept_price=price_accept_url,
         ).pricing_in_progress_stage()
 
@@ -182,28 +182,39 @@ class PriceForCustomer(TemplateView):
     template_name = "price_for_you.html"
 
     def get(self, request, *args, **kwargs):
-        #context = self.get_context_data(**kwargs)
+        self.request.session.set_test_cookie()
 
         # Gets 'secret_key' from url
         path = self.request.path
-        self.secret_key = path.rsplit("/")[-2]
+        secret_key = path.rsplit("/")[-2]
 
         #todo variables data and data2 needs better names
 
         # Finds record in db with 'secret_key'
-        data = NativePost.objects.filter(secret_key=self.secret_key)
+        data = NativePost.objects.filter(secret_key=secret_key)
 
         # Finds record in db with 'secret_key'
-        data2 = FinalPricingModel.objects.filter(secret_key=self.secret_key)
+        data2 = FinalPricingModel.objects.filter(secret_key=secret_key)
 
         # Creates url which gives possibility to accept price by customer
-        price_accept_url = UrlsGenerator().accept_price_url_generator(self.secret_key)
+        price_accept_url = UrlsGenerator().accept_price_url_generator(secret_key)
 
-        self.data_dict = {}
+        data_dict = {}
         for i in data.values():
-            self.data_dict.update(i)
+            data_dict.update(i)
         for j in data2.values():
-            self.data_dict.update(j)
-        self.data_dict.update({'accept_url': price_accept_url})
+            data_dict.update(j)
+        data_dict.update({'accept_url': price_accept_url})
 
-        return self.render_to_response(self.data_dict)
+        return self.render_to_response(data_dict)
+
+class PriceAccepted(TemplateView):
+    template_name = "price_accepted.html"
+
+    def get(self, request, *args, **kwargs):
+        data_dict = {}
+
+
+
+        if self.request.session.test_cookie_worked():
+            return self.render_to_response(data_dict)
