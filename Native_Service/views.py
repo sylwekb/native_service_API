@@ -174,3 +174,36 @@ class FinalPricingSubmit(TemplateView):
             context = self.get_context_data(**kwargs)
             self.request.session.delete_test_cookie()
             return self.render_to_response(context)
+
+
+class PriceForCustomer(TemplateView):
+    """ View for a customer which gives the possibility to accept the price. """
+
+    template_name = "price_for_you.html"
+
+    def get(self, request, *args, **kwargs):
+        #context = self.get_context_data(**kwargs)
+
+        # Gets 'secret_key' from url
+        path = self.request.path
+        self.secret_key = path.rsplit("/")[-2]
+
+        #todo variables data and data2 needs better names
+
+        # Finds record in db with 'secret_key'
+        data = NativePost.objects.filter(secret_key=self.secret_key)
+
+        # Finds record in db with 'secret_key'
+        data2 = FinalPricingModel.objects.filter(secret_key=self.secret_key)
+
+        # Creates url which gives possibility to accept price by customer
+        price_accept_url = UrlsGenerator().accept_price_url_generator(self.secret_key)
+
+        self.data_dict = {}
+        for i in data.values():
+            self.data_dict.update(i)
+        for j in data2.values():
+            self.data_dict.update(j)
+        self.data_dict.update({'accept_url': price_accept_url})
+
+        return self.render_to_response(self.data_dict)

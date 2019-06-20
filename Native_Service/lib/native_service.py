@@ -145,9 +145,9 @@ class EmailGenerator:
             f"Native Service - wycena zlecenia gotowa.",
             f"Witaj {data['name']}\n"
             f"Twoja wycena '{data['title']}' została zrealizowana! \n"
-            f"Całkowity koszt usługi to {price['price']}\n"
+            f"Całkowity koszt usługi to {price['price']} zł\n"
             #todo |/ this time should be got by some 'time' method
-            f"Czas realizacji to {price['time_to_get_ready']} zł.\n"
+            f"Czas realizacji to {price['time_to_get_ready']}.\n"
             f"Jeśli akceptujesz warunki realizacji zlecenia, kliknij link poniżej:\n"
             f"{price_accept_url}\n"
             f"Lub wejdź na stronę {url}\n"

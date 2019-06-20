@@ -20,7 +20,7 @@ urlpatterns = [
     ),
     path(
         "price_for_you/<str:secret_key>/",
-        views.FinalPricing.as_view(),
+        views.PriceForCustomer.as_view(),
         name="price_for_you",
     ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
