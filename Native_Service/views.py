@@ -23,7 +23,9 @@ class Pricing(FormView):
     template_name = "index.html"
     secret_key = None
     form_class = NativePostForm
-    success_url = "/upload"  # instead of using plain url, use django's `reverse` function and pass the name of the upload view.
+    success_url = (
+        "/upload"
+    )  # instead of using plain url, use django's `reverse` function and pass the name of the upload view.
     files = None
 
     def get(self, request, *args, **kwargs):
@@ -39,6 +41,9 @@ class Pricing(FormView):
         # I think you can move this whole file hanling code to `form_valid`. Also the contidion `form.is_valid()` is handled by FormView itself.
         self.files = request.FILES.getlist("file")
         if form.is_valid():
+            # use FileField instead, it does it all for you, including the file name generating
+            # look at the example https://docs.djangoproject.com/en/2.2/ref/models/fields/#filefield
+            # upload = models.FileField(upload_to='uploads/%Y/%m/%d/')
             for f in self.files:
                 fs = FileSystemStorage(
                     location=settings.MEDIA_ROOT + f"uploads/{datetime.date.today()}/"
@@ -69,7 +74,9 @@ class FormSubmit(Pricing):
         """ Form data rendering in submit view. Protected by session. """
         template_name = "upload.html"
         posts = NativePost.objects.all()
-        args = posts.values().last() # you cannot assume that the last post was done by the person with this cookie. You need to assign the `pk` of the `NativePost` in previous view to some variable in session, and here get this variable's value, and use this `pk` to search for the proper post. PTAL: https://docs.djangoproject.com/en/2.2/topics/http/sessions/#examples
+        args = (
+            posts.values().last()
+        )  # you cannot assume that the last post was done by the person with this cookie. You need to assign the `pk` of the `NativePost` in previous view to some variable in session, and here get this variable's value, and use this `pk` to search for the proper post. PTAL: https://docs.djangoproject.com/en/2.2/topics/http/sessions/#examples
         if self.request.session.test_cookie_worked():
             self.request.session.delete_test_cookie()
             return render(self.request, template_name, args)
